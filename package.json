@@ -1,0 +1,12 @@
+{
+  "name": "eestikeel",
+  "module": "index.js",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "type": "module",
+  "dependencies": {
+    "google-auth-library": "^9.4.2",
+    "google-spreadsheet": "^4.1.1"
+  }
+}
