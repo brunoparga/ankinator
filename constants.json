@@ -1,0 +1,18 @@
+{
+  "fetchOptions": {
+    "method": "POST",
+    "body": {
+      "action": "addNotes",
+      "version": 6,
+      "params": {}
+    }
+  },
+  "ankiURL": "http://127.0.0.1:8765",
+  "noteOptions": {
+    "allowDuplicate": false,
+    "duplicateScope": "deck",
+    "duplicateScopeOptions": {
+      "checkAllModels": true
+    }
+  }
+}
