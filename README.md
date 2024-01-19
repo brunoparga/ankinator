@@ -1,4 +1,4 @@
-# eestikeel
+# ankinator
 
 This project implements a two-way sync between a centralized Google Spreadsheet and an Anki deck in the user's computer.
 
