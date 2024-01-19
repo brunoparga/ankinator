@@ -1,6 +1,6 @@
 {
-  "name": "eestikeel",
-  "module": "index.js",
+  "name": "ankinator",
+  "module": "./src/index.js",
   "devDependencies": {
     "bun-types": "latest"
   },

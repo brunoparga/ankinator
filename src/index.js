@@ -1,7 +1,7 @@
 import { loadSheetData } from './google_sheets';
 
-import settings from './settings.json';
-import constants from './constants.json';
+import settings from '../data/settings.json';
+import constants from '../data/constants.json';
 
 async function main() {
   const { title, rows } = await loadSheetData();

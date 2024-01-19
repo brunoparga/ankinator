@@ -1,8 +1,8 @@
 import { JWT } from 'google-auth-library';
 import { GoogleSpreadsheet as Sheet } from 'google-spreadsheet';
 
-import credentials from './api_key.json';
-import settings from './settings.json';
+import credentials from '../data/api_key.json';
+import settings from '../data/settings.json';
 
 function buildJWT() {
   return new JWT({
