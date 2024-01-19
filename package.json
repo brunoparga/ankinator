@@ -1,6 +1,6 @@
 {
   "name": "ankinator",
-  "module": "./src/index.js",
+  "module": "./src/main.js",
   "devDependencies": {
     "bun-types": "latest"
   },
