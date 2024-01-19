@@ -1,28 +1,14 @@
-import { JWT } from 'google-auth-library';
-import { GoogleSpreadsheet as Sheet } from 'google-spreadsheet';
+import { loadSheetData } from './google_sheets';
 
-import credentials from './api_key.json';
 import settings from './settings.json';
 import constants from './constants.json';
 
 async function main() {
-  const doc = new Sheet(settings.file_id, buildJWT());
-  await doc.loadInfo();
-  const sheet = doc.sheetsByIndex[0];
-  const rows = await sheet.getRows();
+  const { title, rows } = await loadSheetData();
   const notes = rows.map(buildNote);
   const fetchOptions = buildFetchOptions(notes);
-
   const response = await (await fetch(constants.ankiURL, fetchOptions)).json();
-  handleResponse(response, doc, rows);
-}
-
-function buildJWT() {
-  return new JWT({
-    email: credentials.client_email,
-    key: credentials.private_key,
-    scopes: credentials.scopes,
-  });
+  handleResponse(response, title, rows);
 }
 
 function buildNote(row) {
@@ -46,7 +32,7 @@ function buildFetchOptions(notes) {
   return fetchOptions;
 }
 
-function handleResponse(response, doc, rows) {
+function handleResponse(response, title, rows) {
   if (response.error) {
     console.log('The program has encountered an error.');
   } else {
@@ -55,9 +41,11 @@ function handleResponse(response, doc, rows) {
     const duplicates =
       inserted == rows.length ? '' : 'Since duplicates are skipped, ';
     console.log(
-      `The spreadsheet "${doc.title}" has ${rows.length} rows. ${duplicates}${
+      `The spreadsheet "${title}" has ${rows.length} rows. ${duplicates}${
         inserted ? inserted * 2 : 'no'
-      } cards were inserted into the ${settings.deck_name} deck. ${inserted ? 'Have fun!' : ''}`
+      } cards were inserted into the ${settings.deck_name} deck. ${
+        inserted ? 'Have fun!' : ''
+      }`
     );
   }
 }
