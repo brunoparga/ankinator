@@ -62,14 +62,18 @@ function deflag(string, flag) {
   return string.replace(`${flag} `, '');
 }
 
+function reflag(side, text) {
+  return `${settings[side].flag} ${text}`;
+}
+
 export function buildNote(source) {
   const { front, back } = buildCardData(source);
   return {
     deckName: settings.deck_name,
     modelName: settings.model_name,
     fields: {
-      Front: `${settings.front.flag} ${front}`,
-      Back: `${settings.back.flag} ${back}`,
+      Front: `${reflag('front', front)}`,
+      Back: `${reflag('back', back)}`,
     },
     options: constants.noteOptions,
   };
@@ -78,6 +82,22 @@ export function buildNote(source) {
 export async function createFlashcards(notes) {
   const body = { action: 'addNotes', params: { notes } };
   return await ankiFetch(body, 'Creating flashcards');
+}
+
+export async function updateFlashcards(notesJson) {
+  const ellipsis = /\.\.\./g
+  const notes = notesJson.map(({ id, front, back }) => ({
+    id,
+    fields: {
+      Front: `${reflag('front', front).replace(ellipsis, '-')}`,
+      Back: `${reflag('back', back).replace(ellipsis, '-')}`,
+    },
+  }));
+  for (const note of notes) {
+    const body = { action: 'updateNoteFields', params: { note } };
+    await ankiFetch(body, `Updating ${note.fields.Front}/${note.fields.Back}`);
+    Bun.sleepSync(200)
+  }
 }
 
 export async function flashcardsAsJson() {
