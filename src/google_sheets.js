@@ -41,18 +41,18 @@ function initializeReport(rows, deck) {
 
 function setRowStatus(data, cardIds) {
   if (
-    data.frontIndex == data.backIndex &&
+    data.frontIndex === data.backIndex &&
     data.frontIndex != -1 &&
-    data.rowId == cardIds[data.frontIndex]
+    parseInt(data.rowId) === cardIds[data.frontIndex]
   ) {
     return 'perfect';
-  } else if (data.frontIndex == data.backIndex && data.frontIndex != -1) {
+  } else if (data.frontIndex === data.backIndex && data.frontIndex != -1) {
     return 'needs ID';
-  } else if (data.frontIndex == data.backIndex) {
+  } else if (data.frontIndex === data.backIndex) {
     return 'needs Anki card';
-  } else if (data.backIndex != 1 && data.frontIndex == -1) {
+  } else if (data.backIndex != 1 && data.frontIndex === -1) {
     return 'Front correction';
-  } else if (data.frontIndex != 1 && data.backIndex == -1) {
+  } else if (data.frontIndex != 1 && data.backIndex === -1) {
     return 'Back correction';
   } else if (data.frontIndex != data.backIndex) {
     return 'error';
@@ -66,10 +66,10 @@ function buildRowData(apiRow, deckData) {
   data.rowBack = apiRow.get(settings.back.column_name);
   data.rowId = apiRow.get('ID');
   data.frontIndex = deckData.fronts.findIndex(
-    (cardFront) => cardFront == data.rowFront
+    (cardFront) => cardFront === data.rowFront
   );
   data.backIndex = deckData.backs.findIndex(
-    (cardBack) => cardBack == data.rowBack
+    (cardBack) => cardBack === data.rowBack
   );
   data.rowStatus = setRowStatus(data, deckData.IDs);
 
@@ -79,7 +79,7 @@ function buildRowData(apiRow, deckData) {
 async function addId(cardIds, rowData, report) {
   const id = cardIds[rowData.frontIndex];
   rowData.apiRow.set('ID', id);
-  await rowData.apiRow.save();
+  // await rowData.apiRow.save();
   // Bun.sleepSync(167);
   report.neededId = report.neededId.concat([id]);
 
@@ -88,13 +88,13 @@ async function addId(cardIds, rowData, report) {
 
 function buildCorrectRow(rowData, deckData) {
   const values = {};
-  if (rowData.rowStatus == 'Front correction') {
+  if (rowData.rowStatus === 'Front correction') {
     values.side = 'front';
     values.index = rowData.backIndex;
     values.reference = rowData.rowBack;
     values.incorrect = rowData.rowFront;
     values.correct = deckData.fronts[rowData.backIndex];
-  } else if (rowData.rowStatus == 'Back correction') {
+  } else if (rowData.rowStatus === 'Back correction') {
     values.side = 'back';
     values.index = rowData.frontIndex;
     values.reference = rowData.rowFront;
@@ -113,7 +113,7 @@ async function correctRow(verbose, rowData, deckData, report) {
   const values = buildCorrectRow(rowData, deckData);
   rowData.apiRow.set(settings[values.side].column_name, values.correct);
 
-  if (rowData.rowId == undefined) {
+  if (rowData.rowId === undefined) {
     rowData.apiRow.set('ID', deckData.IDs[values.index]);
   } else if (rowData.rowId != deckData.IDs[values.index]) {
     throw new Error(
@@ -127,8 +127,8 @@ async function correctRow(verbose, rowData, deckData, report) {
   // await row.save();
   // Bun.sleepSync(167);
   const diff = {
-    id: rowData.apiRow.ID,
-    [values.side == 'front' ? 'back' : values.side]: values.reference,
+    id: rowData.rowId,
+    [values.side === 'front' ? 'back' : 'front']: values.reference,
     [`old${capitalize(values.side)}`]: values.incorrect,
     [`new${capitalize(values.side)}`]: values.correct,
   };
@@ -199,6 +199,9 @@ export async function updateSheet(deck) {
 
   console.log('done.');
   withDoneMsg('Writing report to file', async () => {
-    await Bun.write('./data/sync_report.json', JSON.stringify(report, null, '\t'));
+    await Bun.write(
+      './data/sync_report.json',
+      JSON.stringify(report, null, '\t')
+    );
   });
 }

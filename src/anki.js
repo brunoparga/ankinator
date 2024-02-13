@@ -3,7 +3,7 @@ import constants from '../data/constants.json';
 import { withDoneMsg } from './ui';
 
 function buildCardData(source) {
-  if (typeof source == 'GoogleSpreadsheetRow') {
+  if (typeof source === 'GoogleSpreadsheetRow') {
     return {
       front: source.get(settings.front.column_name),
       back: source.get(settings.back.column_name),

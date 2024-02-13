@@ -29,7 +29,7 @@ export function handleResponse(response, title, rows) {
     const countNonNull = (acc, elt) => (elt ? acc + 1 : acc);
     const inserted = response.result.reduce(countNonNull, 0);
     const duplicates =
-      inserted == rows.length ? '' : 'Since duplicates are skipped, ';
+      inserted === rows.length ? '' : 'Since duplicates are skipped, ';
     console.log(
       `The spreadsheet "${title}" has ${rows.length} rows. ${duplicates}${
         inserted ? inserted * 2 : 'no'
