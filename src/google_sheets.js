@@ -39,39 +39,44 @@ function initializeReport(rows, deck) {
   );
 }
 
-function setRowStatus(data, cardIds) {
+function setRowStatus(frontIndex, backIndex, rowId, cardIds) {
   if (
-    data.frontIndex === data.backIndex &&
-    data.frontIndex != -1 &&
-    parseInt(data.rowId) === cardIds[data.frontIndex]
+    frontIndex === backIndex &&
+    frontIndex != -1 &&
+    parseInt(rowId) === cardIds[frontIndex]
   ) {
     return 'perfect';
-  } else if (data.frontIndex === data.backIndex && data.frontIndex != -1) {
+  } else if (frontIndex === backIndex && frontIndex != -1) {
     return 'needs ID';
-  } else if (data.frontIndex === data.backIndex) {
+  } else if (frontIndex === backIndex) {
     return 'needs Anki card';
-  } else if (data.backIndex != 1 && data.frontIndex === -1) {
+  } else if (backIndex != 1 && frontIndex === -1) {
     return 'Front correction';
-  } else if (data.frontIndex != 1 && data.backIndex === -1) {
+  } else if (frontIndex != 1 && backIndex === -1) {
     return 'Back correction';
-  } else if (data.frontIndex != data.backIndex) {
+  } else if (frontIndex != backIndex) {
     return 'error';
   }
 }
 
 function buildRowData(apiRow, deckData) {
   let data = { apiRow };
-  data.oldRow = JSON.parse(JSON.stringify(apiRow.toObject()));
-  data.rowFront = apiRow.get(settings.front.column_name);
-  data.rowBack = apiRow.get(settings.back.column_name);
-  data.rowId = apiRow.get('ID');
+  const oldRow = JSON.parse(JSON.stringify(apiRow.toObject()));
+  data.rowFront = oldRow[settings.front.column_name];
+  data.rowBack = oldRow[settings.back.column_name];
+  data.rowId = oldRow.ID;
   data.frontIndex = deckData.fronts.findIndex(
     (cardFront) => cardFront === data.rowFront
   );
   data.backIndex = deckData.backs.findIndex(
     (cardBack) => cardBack === data.rowBack
   );
-  data.rowStatus = setRowStatus(data, deckData.IDs);
+  data.rowStatus = setRowStatus(
+    data.frontIndex,
+    data.backIndex,
+    data.rowId,
+    deckData.IDs
+  );
 
   return data;
 }
@@ -122,7 +127,7 @@ async function correctRow(verbose, rowData, deckData, report) {
   }
 
   if (verbose) {
-    correctionMessage(values.side, rowData.oldRow, rowData.apiRow);
+    correctionMessage(values.side, rowData);
   }
   // await row.save();
   // Bun.sleepSync(167);
@@ -136,9 +141,10 @@ async function correctRow(verbose, rowData, deckData, report) {
   return report;
 }
 
-function handleCardError() {
+function handleCardError(deck, rowData) {
   console.log('An error was encountered for the row:');
-  console.log(oldRow);
+  const row = { rowFront, rowBack, rowId } = rowData;
+  console.log(row);
   console.log('Here are the relevant flashcards:');
   const diff = {
     cardAtFrontIndex: deck[rowData.frontIndex],
@@ -189,7 +195,7 @@ export async function updateSheet(deck) {
         report = await correctRow(verbose, rowData, deckData, report);
         break;
       case 'error':
-        handleCardError();
+        handleCardError(deck, rowData);
         break;
     }
   }
@@ -200,7 +206,7 @@ export async function updateSheet(deck) {
   console.log('done.');
   withDoneMsg('Writing report to file', async () => {
     await Bun.write(
-      './data/sync_report.json',
+      constants.reportFilename,
       JSON.stringify(report, null, '\t')
     );
   });

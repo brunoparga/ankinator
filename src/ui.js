@@ -14,9 +14,9 @@ export function printRowCount(index, length) {
   process.stdout.write(`Processing row ${index}/${length}... `);
 }
 
-export function correctionMessage(side, oldRow, apiRow) {
+export function correctionMessage(side, { ID, Eesti, Inglise, apiRow }) {
   console.log(`${settings[side].subject_name} correction needed in the row:`);
-  console.log(oldRow);
+  console.log({ ID, Eesti, Inglise });
   console.log('The new row object is:');
   console.log(apiRow.toObject());
   console.log('The correction will be inserted in the spreadsheet.');
