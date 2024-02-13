@@ -1,8 +1,7 @@
 {
-  "fetchOptions": {
+  "fetchParams": {
     "method": "POST",
     "body": {
-      "action": "addNotes",
       "version": 6,
       "params": {}
     }
@@ -14,5 +13,12 @@
     "duplicateScopeOptions": {
       "checkAllModels": true
     }
+  },
+  "reportDefaults": {
+    "perfectMatches": 0,
+    "neededId": [],
+    "correctedMatches": [],
+    "needsFlashcard": [],
+    "errors": []
   }
 }

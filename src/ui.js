@@ -1,5 +1,21 @@
 import settings from '../data/settings.json';
 
+export async function withDoneMsg(message, fun) {
+  process.stdout.write(`${message}... `);
+  const returnValue = await fun();
+  console.log('done.');
+
+  return returnValue;
+}
+
+export function correctionMessage(side, oldRow, apiRow) {
+  console.log(`${settings[side].subject_name} correction needed in the row:`);
+  console.log(oldRow);
+  console.log('The new row object is:');
+  console.log(apiRow.toObject());
+  console.log('The correction will be inserted in the spreadsheet.');
+}
+
 export function handleResponse(response, title, rows) {
   if (response.error) {
     console.log('The program has encountered an error.');
