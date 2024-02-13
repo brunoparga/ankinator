@@ -8,6 +8,12 @@ export async function withDoneMsg(message, fun) {
   return returnValue;
 }
 
+export function printRowCount(index, length) {
+  process.stdout.clearLine();
+  process.stdout.cursorTo(0);
+  process.stdout.write(`Processing row ${index}/${length}... `);
+}
+
 export function correctionMessage(side, oldRow, apiRow) {
   console.log(`${settings[side].subject_name} correction needed in the row:`);
   console.log(oldRow);
