@@ -1,24 +1,7 @@
 import settings from '../data/settings.json';
 import constants from '../data/constants.json';
 import { withDoneMsg } from './ui';
-
-function buildCardData(source) {
-  if (typeof source === 'GoogleSpreadsheetRow') {
-    return {
-      front: source.get(settings.front.column_name),
-      back: source.get(settings.back.column_name),
-    };
-  } else if (source.hasOwnProperty('front') && source.hasOwnProperty('back')) {
-    return {
-      front: source.front,
-      back: source.back,
-    };
-  } else {
-    throw new Error(
-      'Cannot build note from this source.\nExpected either a GoogleSpreadsheetRow object or an object with "front" and "back" properties.'
-    );
-  }
-}
+import { ankiDataToNote, buildDeckData } from './data_manipulation';
 
 function buildFetchParams(body) {
   const { fetchParams } = JSON.parse(JSON.stringify(constants));
@@ -50,33 +33,12 @@ async function readNoteIDs() {
   return await ankiFetch(body, 'Reading note IDs from Anki');
 }
 
-async function notesFromIDs(noteIDs) {
+export async function notesFromIDs(noteIDs) {
   const body = {
     action: 'notesInfo',
     params: { notes: noteIDs },
   };
   return await ankiFetch(body, 'Converting note IDs into actual notes');
-}
-
-function deflag(string, flag) {
-  return string.replace(`${flag} `, '');
-}
-
-function reflag(side, text) {
-  return `${settings[side].flag} ${text}`;
-}
-
-export function buildNote(source) {
-  const { front, back } = buildCardData(source);
-  return {
-    deckName: settings.deck_name,
-    modelName: settings.model_name,
-    fields: {
-      Front: `${reflag('front', front)}`,
-      Back: `${reflag('back', back)}`,
-    },
-    options: constants.noteOptions,
-  };
 }
 
 export async function createFlashcards(notes) {
@@ -85,7 +47,7 @@ export async function createFlashcards(notes) {
 }
 
 export async function updateFlashcards(notesJson) {
-  const ellipsis = /\.\.\./g
+  const ellipsis = /\.\.\./g;
   const notes = notesJson.map(({ id, front, back }) => ({
     id,
     fields: {
@@ -96,16 +58,13 @@ export async function updateFlashcards(notesJson) {
   for (const note of notes) {
     const body = { action: 'updateNoteFields', params: { note } };
     await ankiFetch(body, `Updating ${note.fields.Front}/${note.fields.Back}`);
-    Bun.sleepSync(200)
+    Bun.sleepSync(50);
   }
 }
 
 export async function flashcardsAsJson() {
-  const noteIDs = await readNoteIDs();
-  const notes = await notesFromIDs(noteIDs);
-  return notes.map((note) => ({
-    id: note.noteId,
-    front: deflag(note.fields.Front.value, settings.front.flag),
-    back: deflag(note.fields.Back.value, settings.back.flag),
-  }));
+  const IDs = await readNoteIDs();
+  const ankiData = await notesFromIDs(IDs);
+  const notes = ankiData.map(ankiDataToNote);
+  return buildDeckData(notes);
 }

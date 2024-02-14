@@ -21,14 +21,6 @@ async function loadDocument() {
   return doc;
 }
 
-function buildDeckData(deck) {
-  const fronts = deck.map((card) => card.front);
-  const backs = deck.map((card) => card.back);
-  const IDs = deck.map((card) => card.id);
-
-  return { fronts, backs, IDs };
-}
-
 function initializeReport(rows, deck) {
   return Object.assign(
     {
@@ -156,10 +148,10 @@ function handleCardError(deck, rowData) {
 
 export async function loadSheetData() {
   const doc = await loadDocument();
-  const sheet = doc.sheetsByIndex[0];
-  const rows = await sheet.getRows();
+  const sheet = doc.sheetsByTitle[settings.deck_name];
+  const apiRows = await sheet.getRows();
 
-  return { title: doc.title, rows };
+  return { title: doc.title, apiRows };
 }
 
 export async function updateSheet(deck) {

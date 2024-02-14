@@ -23,6 +23,7 @@ export function correctionMessage(side, { ID, Eesti, Inglise, apiRow }) {
 }
 
 export function handleResponse(response, title, rows) {
+  // TODO: freeze title in Settings
   if (response.error) {
     console.log('The program has encountered an error.');
   } else {
