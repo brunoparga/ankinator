@@ -1,5 +1,7 @@
 # ankinator
 
+This repository is an early incarnation of an app to connect a Google Spreadsheet to an Anki deck. The project now runs on Elixir and Gleam, so this repo is archived.
+
 This project implements a two-way sync between a centralized Google Spreadsheet and an Anki deck in the user's computer.
 
 To install dependencies:
